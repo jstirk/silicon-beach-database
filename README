@@ -1,0 +1,42 @@
+= Silicon Beach Australia Distributed Database Initiative
+
+== DESCRIPTION
+
+On Sunday 27th July, Elias Bizannes created the SiliconBeachAustralia.org google group. Within 24 hours, 83 messages had been posted by the 84 members. One week later, this rapidly expanding community had a new initiative identified. The evolution of the idea as initially proposed by Elias, can be best described as a distributed database using data portability technologies. People will markup their blogs, websites, or store their information where they want - and ping the central SiliconBeachAustralia.org server to create an aggregated database of people and companies.
+
+Further details of the idea: http://groups.google.com/group/silicon-beach-australia/browse_thread/thread/4453a546137df6bf
+
+== CONTRIBUTORS
+
+Elias Bizannes
+Wayne Meissner
+Warren Seen
+Jason Stirk
+
+== OVERVIEW
+
+The core features of the database include :
+ # Being able to periodically check pages registered with the system for hResume data and update the data stored in the database;
+ # Store the hResume data in a database format that facilitates easier searching, aggregation and the construction of a web API to allow other sites to consume the data;
+ # Allow authors to defer their resume to another site. That is, we should follow redirects when requesting content so as that authors may easily change their resume provider. Eg. http://griffin.oobleyboo.com/resume might redirect to my LinkedIn profile. We should handle that;
+ 
+== TODO
+
+ * Database should be moved from SQLite3 into MySQL, preferably using MyISAM tables in select places to allow us to do full-text indexing. Alternatively, we could use another database and table type, and push all the content into another indexing system.
+ * Consider merging Resume and Person models. It doesn't really make sense to allow a single person to have multiple resumes - they should have one authoritative document, not several separate documents. Resume model currently only handles minimal data about when it should be updated, the URI, etc. This could easily be merged in as part of Person.
+
+== CURRENT USAGE
+
+Currently only the models have been started. You can play with them 
+via script/console :
+
+r=Resume.new
+r.uri='http://www.linkedin.com/in/jasonstirk'
+r.save
+r.update!
+
+r.summary # => "...."
+
+p=r.person # => #<Person ...>
+r.person.given_name # => "Jason"
+r.person.locality # => "New South Wales, Australia"

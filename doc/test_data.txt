@@ -1,0 +1,10 @@
+Test Data
+
+Build up a list of URLs here that we can test our parsing implementation
+against.
+
+LinkedIn produces hResume data.
+http://www.linkedin.com/in/jasonstirk
+
+hResume Examples:
+http://tantek.com/projects/resume.html
