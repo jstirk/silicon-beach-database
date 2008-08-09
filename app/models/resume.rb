@@ -25,11 +25,7 @@ class Resume < ActiveRecord::Base
 
   # Update this Resume now
   def update!
-    response=SBA::request(self.uri, :last_modified => self.last_updated_at) 
-    # TODO: Handle any exceptions it might raise - in particular marking the
-    #       feed as bad so as that we don't check it for a while, and eventually
-    #       stop checking it entirely if there continue to be errors.
-    
+    response=SBA::request(self.uri, :last_modified => self.last_updated_at)
     # NOTE: We don't care if we've been forced to follow redirects - we
     #       continue to get the URL requested. This allows authors to
     #       delegate their resumes to other providers via redirects but
@@ -38,18 +34,28 @@ class Resume < ActiveRecord::Base
     #       to catch if they change the destination in their registered page
     #       forcing the redirection.
     
-    case response[:status]
-      when 200
-        # Update this record
-        self.parse_content!(response[:content])
-        self.calculate_next_update!
-      when 304
-        # It's the same content as last time - so we still update the 
-        # time that we next check it.
-        self.calculate_next_update!
-      else
-        # TODO: An unknown response type.
+    # TODO: Handle any exceptions it might raise - in particular marking the
+    # feed as bad so as that we don't check it for a while, and eventually
+    # stop checking it entirely if there continue to be errors.
+    begin
+      case response[:status]
+        when 200
+          # Update this record
+          self.parse_content!(response[:content])
+        when 304
+          # It's the same content as last time - so we still update the 
+          # time that we next check it.
+        else
+          # TODO: An unknown response type.
+      end
+    rescue
+      logger.error "Error: Updating Resume #{self.id}\n  #{$!}"
     end
+    
+    # Always update the time - even if it's an error
+    self.calculate_next_update!
+    
+    true
   end
 
   # Parse the (X)HTML content and update this resume's data.
@@ -59,6 +65,10 @@ class Resume < ActiveRecord::Base
     Resume.transaction do
       h=Hpricot(content)
       hresume=h/".hresume"
+      
+      # Obviously if it's not a hResume document, we don't want
+      # to continue.
+      raise 'Not a hResume document' if hresume.blank?
     
       # Data we're going to write to our model
       data={}
@@ -74,6 +84,11 @@ class Resume < ActiveRecord::Base
       if self.person.nil? then
         self.person=Person.new
       end
+      
+      # Not having a contact vCard to let us know who they are is
+      # a big fail. We don't want to list them in that case.
+      raise 'Missing ontact vCard' if contact.blank?
+      
       # Let the Person model parse the vcard information.
       self.person.parse_content!(contact)
       
