@@ -3,7 +3,27 @@ class Resume < ActiveRecord::Base
   belongs_to :person
   
   # TODO: before_create parse the URI and check it's sane
+  
+  # Find all of the Resumes that need to be updated, and update them now.
+  def self.update_all!
+    # Because it's feasible that we could get a huge list here, only fetch
+    # the IDs initially. Then, we'll request each resume individually so
+    # as that if another process is running at the same time, we won't
+    # re-do the same work.
+    conditions=[ 'update_again_at <= ? OR update_again_at IS NULL', Time.now ]
+    Resume.find(:all, :conditions => conditions,
+                :select => :id ).each do |rid|
+      # Another process may have come through before us, which is why we
+      # check update_again_at now.
+      r=Resume.find(rid.id, 
+                    :conditions => conditions,
+                    :lock => true)
+      r.update! if r
+    end
+    true
+  end
 
+  # Update this Resume now
   def update!
     response=SBA::request(self.uri, :last_modified => self.last_updated_at) 
     # TODO: Handle any exceptions it might raise - in particular marking the
@@ -22,6 +42,7 @@ class Resume < ActiveRecord::Base
       when 200
         # Update this record
         self.parse_content!(response[:content])
+        self.calculate_next_update!
       when 304
         # It's the same content as last time - so we still update the 
         # time that we next check it.
@@ -55,6 +76,22 @@ class Resume < ActiveRecord::Base
       end
       # Let the Person model parse the vcard information.
       self.person.parse_content!(contact)
+      
+      # Parse the .skills or the multiple .skill entries
+      skills=[]
+      (hresume/".skill").each do |el|
+        skills << el.inner_text.strip
+      end
+      (hresume/".skills").each do |el|
+        el.inner_text.strip.split(/\r\n|\r|\n/).each do |t|
+          skills << t.strip
+        end
+      end
+      
+      skills.each do |s|
+        skill=self.person.skills.find_or_create_by_value(s)
+        skill.save!
+      end
       
       data[:summary]=summary
       data[:last_content]=content

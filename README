@@ -24,6 +24,7 @@ The core features of the database include :
 
  * Database should be moved from SQLite3 into MySQL, preferably using MyISAM tables in select places to allow us to do full-text indexing. Alternatively, we could use another database and table type, and push all the content into another indexing system.
  * Consider merging Resume and Person models. It doesn't really make sense to allow a single person to have multiple resumes - they should have one authoritative document, not several separate documents. Resume model currently only handles minimal data about when it should be updated, the URI, etc. This could easily be merged in as part of Person.
+ * Consider normalizing Skills.value out to another table so as that we can look them up by ID, rather than text comparison.
 
 == CURRENT USAGE
 
@@ -40,3 +41,10 @@ r.summary # => "...."
 p=r.person # => #<Person ...>
 r.person.given_name # => "Jason"
 r.person.locality # => "New South Wales, Australia"
+r.person.skills.size # => 7
+
+== PERIODIC UPDATES
+
+Resume::update_all! can be called periodically which will update any Resume models that need to be updated. This method is intended to be safe, even if two running instances overlap - it shouldn't re-process updates that have just been done by another process.
+
+Currently, Resumes are set to be updated once per week.

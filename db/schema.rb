@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20080809030954) do
+ActiveRecord::Schema.define(:version => 20080809112208) do
 
   create_table "people", :force => true do |t|
     t.string   "given_name"
@@ -22,8 +22,10 @@ ActiveRecord::Schema.define(:version => 20080809030954) do
     t.string   "country"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "full_name"
   end
 
+  add_index "people", ["full_name"], :name => "index_people_on_full_name"
   add_index "people", ["country"], :name => "index_people_on_country"
   add_index "people", ["region"], :name => "index_people_on_region"
   add_index "people", ["locality"], :name => "index_people_on_locality"
@@ -40,7 +42,28 @@ ActiveRecord::Schema.define(:version => 20080809030954) do
     t.integer  "person_id"
   end
 
-  add_index "resumes", ["person_id"], :name => "index_resumes_on_person_id"
   add_index "resumes", ["uri"], :name => "index_resumes_on_uri", :unique => true
+  add_index "resumes", ["person_id"], :name => "index_resumes_on_person_id"
+
+  create_table "skills", :force => true do |t|
+    t.integer  "person_id"
+    t.string   "value"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "skills", ["value"], :name => "index_skills_on_value"
+  add_index "skills", ["person_id"], :name => "index_skills_on_person_id"
+
+  create_table "urls", :force => true do |t|
+    t.integer  "person_id"
+    t.string   "description"
+    t.string   "url"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "urls", ["url"], :name => "index_urls_on_url"
+  add_index "urls", ["person_id"], :name => "index_urls_on_person_id"
 
 end
