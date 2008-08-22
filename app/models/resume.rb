@@ -46,10 +46,12 @@ class Resume < ActiveRecord::Base
           # It's the same content as last time - so we still update the 
           # time that we next check it.
         else
-          # TODO: An unknown response type.
+          # An unknown response type.
+          raise "Unknown HTTP Status: #{response[:status]}"
       end
     rescue
       logger.error "Error: Updating Resume #{self.id}\n  #{$!}"
+      pp $!.backtrace
     end
     
     # Always update the time - even if it's an error
@@ -92,21 +94,10 @@ class Resume < ActiveRecord::Base
       # Let the Person model parse the vcard information.
       self.person.parse_content!(contact)
       
-      # Parse the .skills or the multiple .skill entries
-      skills=[]
-      (hresume/".skill").each do |el|
-        skills << el.inner_text.strip
-      end
-      (hresume/".skills").each do |el|
-        el.inner_text.strip.split(/\r\n|\r|\n/).each do |t|
-          skills << t.strip
-        end
-      end
-      
-      skills.each do |s|
-        skill=self.person.skills.find_or_create_by_value(s)
-        skill.save!
-      end
+      # Parse the major bits out of the hResume format
+      parse_skills(hresume)
+      parse_experiences(hresume)      
+      parse_educations(hresume)
       
       data[:summary]=summary
       data[:last_content]=content
@@ -114,13 +105,54 @@ class Resume < ActiveRecord::Base
       self.update_attributes!(data)
     end
   end
-  
+    
   # Updates the Resume's update_again_at field, specifying when we should
   # next automatically fetch this page.
   def calculate_next_update!
     # Work out when next to poll.
     # TODO: Allow author to provide TTL data in the content.
     self.update_attribute(:update_again_at, Time.now + 1.week)
+  end
+  
+private
+  # Parses the hResume .skill and .skills elements
+  def parse_skills(hresume)
+    skills=[]
+    (hresume/".skill").each do |el|
+      skills << el.inner_text.strip
+    end
+    (hresume/".skills").each do |el|
+      el.inner_text.strip.split(/\r\n|\r|\n|,/).each do |t|
+        skills << t.strip
+      end
+    end
+    
+    skills.each do |s|
+      skill=self.person.skills.find_or_create_by_value(s)
+      skill.save!
+    end
+  end
+
+  # Parses the hResume .experience elements
+  def parse_experiences(hresume)
+    (hresume/".experience").each do |el|
+      exp=Experience.new(:person => self.person)
+      exp.parse_content!(el)
+      exp.save_or_replace_existing!
+    end
+    
+    # TODO: Clean out Experiences that are no longer referenced in Resumes
+  end
+  
+  # Parses the hResume .education elements
+  def parse_educations(hresume)
+    (hresume/".education").each do |el|
+      qual=Qualification.new(:person => self.person)
+      qual.parse_content!(el)
+      qual.save_or_replace_existing!
+    end
+    
+    # TODO: Clean out Qualifications that are no longer referenced in Resumes
   end
   
 end

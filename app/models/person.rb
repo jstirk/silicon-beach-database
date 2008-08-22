@@ -2,10 +2,12 @@ class Person < ActiveRecord::Base
   has_many :resumes, :dependent => :destroy
   has_many :urls, :dependent => :destroy
   has_many :skills, :dependent => :destroy
+  has_many :experiences, :dependent => :destroy
+  has_many :qualifications, :dependent => :destroy
   
   # Map the vCard fields to the fields we handle.
   # Keys are vCard classes, values are fields on Person
-  # TODO: Add geo, photo, etc.
+  # TODO: Add photo, etc.
   VCARD_MAPPING={
       '.given-name' => 'given_name',
       '.family-name' => 'family_name',
@@ -15,7 +17,10 @@ class Person < ActiveRecord::Base
       '.adr .locality' => 'locality',
       '.adr .region' => 'region',
       '.adr .postal-code' => 'postal_code',
-      '.adr .country' => 'country'  
+      '.adr .country' => 'country',
+      '.geo' => 'condensed_geo',
+      '.geo .latitude' => 'latitude',
+      '.geo .longitude' => 'longitude'
   }
   
   # Parses the (X)HTML vCard content for this Person.
@@ -26,8 +31,22 @@ class Person < ActiveRecord::Base
     end
     
     VCARD_MAPPING.each do |search, field|
-      elements=content/search
-      self.send(field + '=', elements.inner_text.strip)
+      element=content/search
+      logger.warning "Found multiple (#{element.length}) elements for \"#{search}\"" if element.length > 1
+      element=element.first
+      
+      # Handle abbr-design-pattern
+      # (http://microfotrmats.org/wiki/abbr-design-pattern)
+      # If the element is an ABBR, the title should be machine readable format.
+      value=nil
+      if !element.blank? then
+        if element.name.downcase == 'abbr' then
+          value=element['title']
+        else
+          value=element.inner_text.strip
+        end
+        self.send(field + '=', value)
+      end
     end
     
     # Handle .url elements
@@ -41,4 +60,21 @@ class Person < ActiveRecord::Base
     # back changes if we need to.
     self.save!
   end
+  
+  # Some other microformats.org pages suggest that a valid geo definition
+  # is also "lat;long"
+  # These two methods handle that format for reading and writing.
+  def condensed_geo()
+    "#{self.latitude};#{self.longitude}" unless self.latitude.nil? or self.longitude.nil?
+  end
+  
+  def condensed_geo=(geo)
+    match=geo.match(/([\d\.]+);([\d\.]+)/)
+    if match then
+      self.latitude=match[1]
+      self.longitude=match[2]
+      true
+    end
+  end
+
 end

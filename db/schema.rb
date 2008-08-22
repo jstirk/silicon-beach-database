@@ -9,7 +9,31 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20080809112208) do
+ActiveRecord::Schema.define(:version => 20080822130237) do
+
+  create_table "experiences", :force => true do |t|
+    t.integer  "person_id"
+    t.string   "title"
+    t.integer  "organization_id"
+    t.text     "summary"
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.integer  "duration"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "experiences", ["organization_id"], :name => "index_experiences_on_organization_id"
+  add_index "experiences", ["person_id"], :name => "index_experiences_on_person_id"
+
+  create_table "organizations", :force => true do |t|
+    t.string   "name"
+    t.text     "details"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "organizations", ["name"], :name => "index_organizations_on_name"
 
   create_table "people", :force => true do |t|
     t.string   "given_name"
@@ -23,13 +47,31 @@ ActiveRecord::Schema.define(:version => 20080809112208) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "full_name"
+    t.decimal  "latitude",       :precision => 10, :scale => 7
+    t.decimal  "longitude",      :precision => 10, :scale => 7
   end
 
+  add_index "people", ["latitude", "longitude"], :name => "index_people_on_latitude_and_longitude"
   add_index "people", ["full_name"], :name => "index_people_on_full_name"
   add_index "people", ["country"], :name => "index_people_on_country"
   add_index "people", ["region"], :name => "index_people_on_region"
   add_index "people", ["locality"], :name => "index_people_on_locality"
   add_index "people", ["given_name", "family_name"], :name => "index_people_on_given_name_and_family_name"
+
+  create_table "qualifications", :force => true do |t|
+    t.integer  "person_id"
+    t.string   "degree"
+    t.integer  "organization_id"
+    t.text     "summary"
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "qualifications", ["degree"], :name => "index_qualifications_on_degree"
+  add_index "qualifications", ["organization_id"], :name => "index_qualifications_on_organization_id"
+  add_index "qualifications", ["person_id"], :name => "index_qualifications_on_person_id"
 
   create_table "resumes", :force => true do |t|
     t.string   "uri"

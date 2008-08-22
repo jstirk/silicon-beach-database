@@ -22,9 +22,12 @@ The core features of the database include :
  
 == TODO
 
+ * TESTS! Currently there are absolutely 0 tests run. This really needs to be fixed no that we have some idea of how this is going to work.
  * Database should be moved from SQLite3 into MySQL, preferably using MyISAM tables in select places to allow us to do full-text indexing. Alternatively, we could use another database and table type, and push all the content into another indexing system.
  * Consider merging Resume and Person models. It doesn't really make sense to allow a single person to have multiple resumes - they should have one authoritative document, not several separate documents. Resume model currently only handles minimal data about when it should be updated, the URI, etc. This could easily be merged in as part of Person.
  * Consider normalizing Skills.value out to another table so as that we can look them up by ID, rather than text comparison.
+ * Skills are currently separated by DOS, Unix or Mac end-of-line sets, and by single comma (,) characters. Should we split these fields at all? Do we propose some sort of convention for this? Should we use semi-colon (;) rather than comma?
+ * Experience and Qualifications aren't cleaned out if the resume no longer refers to them. This should probably be done with some sort of timestamp - if we haven't seen the data for a few cycles, drop it out.
 
 == CURRENT USAGE
 
@@ -41,7 +44,22 @@ r.summary # => "...."
 p=r.person # => #<Person ...>
 r.person.given_name # => "Jason"
 r.person.locality # => "New South Wales, Australia"
-r.person.skills.size # => 7
+r.person.skills.size # => 11
+
+r.person.experiences.size # => 5
+e=r.person.experiences.first # => #<Experience>
+e.organization.name # => 'Achernar Solutions'
+
+Although my resume isn't a good example, you can also use methods like :
+
+person.qualifications.size # => 3
+person.qualifications.first # => #<Qualification>
+
+Similarly :
+
+org=Organization.find(:first)
+org.students # => 1
+org.employees # => 1
 
 == PERIODIC UPDATES
 
