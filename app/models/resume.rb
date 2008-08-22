@@ -51,7 +51,7 @@ class Resume < ActiveRecord::Base
       end
     rescue
       logger.error "Error: Updating Resume #{self.id}\n  #{$!}"
-      pp $!.backtrace
+      logger.error $!.backtrace
     end
     
     # Always update the time - even if it's an error

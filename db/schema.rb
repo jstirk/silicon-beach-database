@@ -23,6 +23,8 @@ ActiveRecord::Schema.define(:version => 20080822130237) do
     t.datetime "updated_at"
   end
 
+  add_index "experiences", ["person_id", "organization_id", "title"], :name => "index_experiences_on_person_id_and_organization_id_and_title"
+  add_index "experiences", ["title"], :name => "index_experiences_on_title"
   add_index "experiences", ["organization_id"], :name => "index_experiences_on_organization_id"
   add_index "experiences", ["person_id"], :name => "index_experiences_on_person_id"
 
