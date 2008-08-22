@@ -76,8 +76,10 @@ module SBA
           # However. If the max_depth is 1, we can't redirect any more, so
           # raise an exception/
           raise 'Too many redirects' if max_depth == 1
-          options[:max_depth] -= 1
-          return request(response.to_hash['Location'], options)
+          options[:max_depth] = max_depth - 1
+          
+          # TODO: location is an array!?! Why!?!
+          return request(response.to_hash['location'].first, options)
           
         when 304
           # It's not been modified since the last check.
