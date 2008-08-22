@@ -1,0 +1,28 @@
+<% if @resume.last_updated_at.nil? then %>
+<h1><%= @resume.uri %></h1>
+<p>This resume has not been indexed yet... Please refresh in 10-15 minutes.</p>
+<% else %>
+<% person=@resume.person %>
+<h1><%= person.full_name %></h1>
+<div><%= person.locality %>, <%= person.region %>, <%= person.country %></div>
+<div><em>Updated: <%= distance_of_time_in_words_to_now(@resume.last_updated_at) %> ago</em></div>
+<h2>URLs</h2>
+<ul>
+<% person.urls.each do |url| %>
+  <li><%= link_to url.description, url.url %></li>
+<% end %>
+  <li><%= link_to 'Original hResume Source', @resume.uri %></li>
+</ul>
+<h2>Experience</h2>
+<% person.experiences.find(:all, :order => 'started_at DESC').each do |exp| %>
+<h3><%= exp.title %> at <%= link_to exp.organization.name, :action => 'org', :id => exp.organization %></h2>
+<p><%= exp.started_at.strftime('%Y-%m-%d') %> to <%= exp.ended_at.strftime('%Y-%m-%d') unless exp.ended_at.nil? %></p>
+<p><%= exp.summary %></p>
+<% end %>
+<h2>Education</h2>
+<% person.qualifications.find(:all, :order => 'started_at DESC').each do |exp| %>
+<h3><%= exp.degree %> at <%= link_to exp.organization.name, :action => 'org', :id => exp.organization %></h2>
+<p><%= exp.started_at.strftime('%Y-%m-%d') %> to <%= exp.ended_at.strftime('%Y-%m-%d') unless exp.ended_at.nil? %></p>
+<p><%= exp.summary %></p>
+<% end %>
+<% end %>

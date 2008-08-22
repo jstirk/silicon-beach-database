@@ -1,0 +1,5 @@
+<h1>All Organizations</h1>
+<p>COM = Employs people | EDU = Educates people</p>
+<% @orgs.each do |org| %>
+  <div><%= link_to org.name, :action => 'org', :id => org %> <% if org.educates? then %>EDU<% end %> <% if org.employs? then %>COM<% end %></div>
+<% end %>

@@ -1,0 +1,5 @@
+<h1>All People</h1>
+<% @people.each do |p| %>
+  <% current=p.current_employment %>
+  <div><%= link_to p.full_name, :action => 'resume', :id => p.resume %> <% if current then %>(<%= current.title %> at <%= link_to current.organization.name, :action => 'org', :id => current.organization %>)<% end %></div>
+<% end %>

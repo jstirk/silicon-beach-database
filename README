@@ -31,8 +31,9 @@ The core features of the database include :
 
 == CURRENT USAGE
 
-Currently only the models have been started. You can play with them 
-via script/console :
+A very basic website exists if you run script/server.
+
+You can also play with the models via script/console :
 
 r=Resume.new
 r.uri='http://www.linkedin.com/in/jasonstirk'

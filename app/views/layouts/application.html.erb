@@ -4,13 +4,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
   <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-  <title>Resumes: <%= controller.action_name %></title>
+  <title>Silicon Beach Australia :: Database</title>
   <%= stylesheet_link_tag 'scaffold' %>
 </head>
 <body>
 
 <p style="color: green"><%= flash[:notice] %></p>
-
+<div><%= link_to 'Home', :action => 'index' %> | <%= link_to 'Organizations', :action => 'orgs' %> | <%= link_to 'People', :action => 'people' %></div>
 <%= yield  %>
 
 </body>

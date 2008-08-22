@@ -1,0 +1,9 @@
+<h1><%= @org.name %></h1>
+<h2>Employees</h2>
+<% @org.experiences.each do |exp| %>
+  <div><%= link_to exp.person.full_name, :action => 'resume', :id => exp.person.resume %> - <%= exp.title %> (<% if exp.ended_at.nil? then %>current<% else %>for <%= distance_of_time_in_words(exp.started_at - exp.ended_at) %><% end %>)</div>
+<% end %>
+<h2>Students</h2>
+<% @org.qualifications.each do |qual| %>
+  <div><%= link_to qual.person.full_name, :action => 'resume', :id => qual.person.resume %> - <%= qual.degree %> (<% if qual.ended_at.nil? then %>current<% else %><%= distance_of_time_in_words_to_now(qual.ended_at) %> ago<% end %>)</div>
+<% end %>

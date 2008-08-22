@@ -5,6 +5,11 @@ class Person < ActiveRecord::Base
   has_many :experiences, :dependent => :destroy
   has_many :qualifications, :dependent => :destroy
   
+  has_one :current_employment, :class_name => 'Experience', :order => 'started_at DESC'
+  
+  # TODO: Consider 1-to-many later
+  has_one :resume
+  
   # Map the vCard fields to the fields we handle.
   # Keys are vCard classes, values are fields on Person
   # TODO: Add photo, etc.

@@ -2,6 +2,8 @@ class Resume < ActiveRecord::Base
 
   belongs_to :person
   
+  validates_uniqueness_of :uri
+  
   # TODO: before_create parse the URI and check it's sane
   
   # Find all of the Resumes that need to be updated, and update them now.
@@ -25,7 +27,13 @@ class Resume < ActiveRecord::Base
 
   # Update this Resume now
   def update!
-    response=SBA::request(self.uri, :last_modified => self.last_updated_at)
+    begin
+      response=SBA::request(self.uri, :last_modified => self.last_updated_at)
+    rescue
+      self.calculate_next_update!(false)
+      return
+    end
+      
     # NOTE: We don't care if we've been forced to follow redirects - we
     #       continue to get the URL requested. This allows authors to
     #       delegate their resumes to other providers via redirects but
@@ -47,7 +55,8 @@ class Resume < ActiveRecord::Base
           # time that we next check it.
         else
           # An unknown response type.
-          raise "Unknown HTTP Status: #{response[:status]}"
+          # TODO: We're supressing errors at the moment
+          # raise "Unknown HTTP Status: #{response[:status]}"
       end
     rescue
       logger.error "Error: Updating Resume #{self.id}\n  #{$!}"
@@ -108,10 +117,13 @@ class Resume < ActiveRecord::Base
     
   # Updates the Resume's update_again_at field, specifying when we should
   # next automatically fetch this page.
-  def calculate_next_update!
+  def calculate_next_update!(fetched_ok=true)
     # Work out when next to poll.
     # TODO: Allow author to provide TTL data in the content.
-    self.update_attribute(:update_again_at, Time.now + 1.week)
+    vals={ :update_again_at => Time.now + 1.week }
+    vals[:last_updated_at] = Time.now.utc if fetched_ok
+    
+    self.update_attributes( vals )
   end
   
 private

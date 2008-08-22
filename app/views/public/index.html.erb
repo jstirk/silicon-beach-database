@@ -1,0 +1,14 @@
+<h1>Silicon Beach Australia :: Database</h1>
+<p>On Sunday 27th July, Elias Bizannes created the SiliconBeachAustralia.org google group. Within 24 hours, 83 messages had been posted by the 84 members. One week later, this rapidly expanding community had a new initiative identified. The evolution of the idea as initially proposed by Elias, can be best described as a distributed database using data portability technologies. People will markup their blogs, websites, or store their information where they want - and ping the central SiliconBeachAustralia.org server to create an aggregated database of people and companies.</p>
+<p>Further details of the idea: <a href="http://groups.google.com/group/silicon-beach-australia/browse_thread/thread/4453a546137df6bf">http://groups.google.com/group/silicon-beach-australia/browse_thread/thread/4453a546137df6bf</a></p>
+<hr />
+<div>
+  <h2>Add Your Resume</h2>
+  <p>We're currently in testing, and so we're collecting as much data as we can.</p>
+  <p>Give us the URI to your hResume marked up resume (eg. LinkedIn) and we'll process it and use it to test against. You'll also be listed in our database.</p>
+  <p><%= Resume.count %> resumes currently listed.</p>
+  <% form_tag :action => 'add_resume' do %>
+    <div><label for="uri">URI to Add :</label><input type="text" name="uri" id="uri" /></div>
+    <div><input type="submit" value="Add" /></div>
+  <% end %>
+</div>
