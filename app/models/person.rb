@@ -53,17 +53,20 @@ class Person < ActiveRecord::Base
         self.send(field + '=', value)
       end
     end
+        
+    # Be sure to raise exceptions on errors so as that we can roll
+    # back changes if we need to.
+    self.save!
     
+    # NOTE: Save these after saving the model, otherwise
+    #       they can't be saved.
     # Handle .url elements
     (content/"a.url").each do |a|
       url=self.urls.find_or_create_by_url(a[:href])
       url.description=a.inner_text.strip
       url.save!
     end
-    
-    # Be sure to raise exceptions on errors so as that we can roll
-    # back changes if we need to.
-    self.save!
+
   end
   
   # Some other microformats.org pages suggest that a valid geo definition
