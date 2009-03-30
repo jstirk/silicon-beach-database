@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  query_id: 1
+  person_id: 1
+  score: 1
+
+two:
+  query_id: 1
+  person_id: 1
+  score: 1

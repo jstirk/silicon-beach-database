@@ -1,0 +1,13 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  query_id: 1
+  person_id: 1
+  keyword: MyString
+  value: 1
+
+two:
+  query_id: 1
+  person_id: 1
+  keyword: MyString
+  value: 1

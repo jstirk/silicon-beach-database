@@ -5,6 +5,8 @@ class Person < ActiveRecord::Base
   has_many :experiences, :dependent => :destroy
   has_many :qualifications, :dependent => :destroy
   
+  has_many :search_results, :dependent => :destroy
+  
   has_one :current_employment, :class_name => 'Experience', :order => 'started_at DESC'
   
   # TODO: Consider 1-to-many later

@@ -126,6 +126,12 @@ class Resume < ActiveRecord::Base
     self.update_attributes( vals )
   end
   
+  def self.search(query_string)
+  	sq=SavedQuery.new(:query => query_string)
+  	sq.save
+  	sq
+  end
+  
 private
   # Parses the hResume .skill and .skills elements
   def parse_skills(hresume)

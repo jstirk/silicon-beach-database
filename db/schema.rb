@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20080822130237) do
+ActiveRecord::Schema.define(:version => 20090330141752) do
 
   create_table "experiences", :force => true do |t|
     t.integer  "person_id"
@@ -88,6 +88,37 @@ ActiveRecord::Schema.define(:version => 20080822130237) do
 
   add_index "resumes", ["uri"], :name => "index_resumes_on_uri", :unique => true
   add_index "resumes", ["person_id"], :name => "index_resumes_on_person_id"
+
+  create_table "saved_queries", :force => true do |t|
+    t.string   "query"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "search_results", :force => true do |t|
+    t.integer  "saved_query_id"
+    t.integer  "person_id"
+    t.integer  "score"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "search_results", ["saved_query_id", "updated_at"], :name => "index_search_results_on_saved_query_id_and_updated_at"
+  add_index "search_results", ["saved_query_id", "score"], :name => "index_search_results_on_saved_query_id_and_score"
+  add_index "search_results", ["saved_query_id", "person_id"], :name => "index_search_results_on_saved_query_id_and_person_id"
+
+  create_table "search_weights", :force => true do |t|
+    t.integer  "saved_query_id"
+    t.integer  "person_id"
+    t.string   "keyword"
+    t.integer  "value"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "search_weights", ["saved_query_id", "keyword"], :name => "index_search_weights_on_saved_query_id_and_keyword"
+  add_index "search_weights", ["person_id"], :name => "index_search_weights_on_person_id"
+  add_index "search_weights", ["saved_query_id"], :name => "index_search_weights_on_saved_query_id"
 
   create_table "skills", :force => true do |t|
     t.integer  "person_id"

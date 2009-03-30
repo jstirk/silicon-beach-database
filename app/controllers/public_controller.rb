@@ -59,5 +59,27 @@ class PublicController < ApplicationController
       format.xml  { render :xml => @resume }
     end
   end
+  
+  def search
+  	if request.post? then
+	  	search=Resume.search(params[:q])
+	  	redirect_to :action => :search, :sq => search
+	  end
+	  if params[:sq] then
+	  	@query=SavedQuery.find(params[:sq])
+	  end
+  end
+  
+  def vote
+  	@query=SavedQuery.find(params[:sq])
+  	if params[:dir] == 'up' then
+  		value=1
+  	else
+  		value=-1
+  	end
+  	@query.vote(params[:p], value)
+  	@query.update_results
+  	redirect_to :action => :search, :sq => @query
+  end
 
 end
