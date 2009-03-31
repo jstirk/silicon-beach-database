@@ -1,0 +1,13 @@
+<% if @query.blank? then -%>
+<% form_tag do %>
+	<p><label for="q">Search:</label><%= text_field_tag :q %></p>
+	<p><%= submit_tag 'Search' %></p>
+<% end %>
+<% else %>
+	<h1>Search for "<%= @query.query %>"</h1>
+	<% @query.search_results.each do |r| %>
+		<% p=r.person %>
+	  <% current=p.current_employment %>
+  	<div>[<%= r.score %>] <%= link_to p.full_name, :action => 'resume', :id => p.resume %> <% if current then %>(<%= current.title %> at <%= link_to current.organization.name, :action => 'org', :id => current.organization %>)<% end %> <%= link_to '[+]', :action => 'vote', :sq => @query, :dir => 'up', :p => p %> <%= link_to '[-]', :action => 'vote', :sq => @query, :dir => 'down', :p => p %> </div>
+	<% end %>
+<% end %>
